@@ -7,6 +7,7 @@ import LabUnitManagement from "./LabUnitManagement";
 import {
   getFromOpenElisServer,
   postToOpenElisServerJsonResponse,
+  putToOpenElisServer,
 } from "../../utils/Utils";
 import messages from "../../../languages/en.json";
 
@@ -58,6 +59,8 @@ vi.mock("../../utils/Utils", async (importOriginal) => {
             },
           ],
         });
+      } else if (endpoint === "/rest/lab-units-management/10/tests") {
+        callback([{ id: "30", name: "Configured Gram stain", isActive: true }]);
       } else if (endpoint.includes("/deactivation-impact")) {
         callback({
           success: true,
@@ -74,11 +77,13 @@ vi.mock("../../utils/Utils", async (importOriginal) => {
       }
     }),
     postToOpenElisServerJsonResponse: vi.fn(),
+    putToOpenElisServer: vi.fn((url, body, callback) => callback(200)),
   };
 });
 
 beforeEach(() => {
   postToOpenElisServerJsonResponse.mockClear();
+  putToOpenElisServer.mockClear();
 });
 
 const mockIntl = {
@@ -217,7 +222,9 @@ describe("LabUnitManagement deactivation flow (OGC-189 M3)", () => {
     fireEvent.click(await screen.findByText("Edit"));
     // Carbon renders the Toggle as a button with role="switch"; clicking the
     // label text does not fire onToggle.
-    const toggle = await screen.findByRole("switch");
+    const toggle = await screen.findByRole("switch", {
+      name: messages["label.labUnit.active"],
+    });
     fireEvent.click(toggle);
   };
 
@@ -359,7 +366,11 @@ describe("LabUnitManagement deactivation into another unit (OGC-1459)", () => {
   const openReassign = async () => {
     renderPage();
     fireEvent.click((await screen.findAllByText("Edit"))[0]);
-    fireEvent.click(await screen.findByRole("switch"));
+    fireEvent.click(
+      await screen.findByRole("switch", {
+        name: messages["label.labUnit.active"],
+      }),
+    );
     await screen.findByText("This lab unit currently holds:");
     fireEvent.click(screen.getByLabelText(/Reassign the tests/));
   };
@@ -434,4 +445,29 @@ describe("LabUnitManagement deactivation into another unit (OGC-1459)", () => {
       ),
     ).toBeNull();
   });
+});
+
+test("saves the lab's tracked-media requirement and configured Gram stain test", async () => {
+  renderPage();
+  fireEvent.click(await screen.findByText("Edit"));
+  fireEvent.click(
+    await screen.findByRole("switch", {
+      name: messages["microbiology.culture.requireTrackedMedia"],
+    }),
+  );
+  fireEvent.click(
+    screen.getByRole("combobox", {
+      name: messages["microbiology.culture.gramTest"],
+    }),
+  );
+  fireEvent.click(await screen.findByText("Configured Gram stain"));
+  fireEvent.click(screen.getByText("Save"));
+  expect(putToOpenElisServer).toHaveBeenCalled();
+  expect(JSON.parse(putToOpenElisServer.mock.calls[0][1])).toEqual(
+    expect.objectContaining({
+      requireTrackedMedia: true,
+      gramStainTestId: "30",
+      isActive: true,
+    }),
+  );
 });
