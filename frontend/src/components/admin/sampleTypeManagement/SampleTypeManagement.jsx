@@ -206,7 +206,8 @@ function SampleTypeManagement({ intl }) {
               id: item.id || index + 1,
               name: item.name || item.description || "Unknown Sample Type",
               description: item.description || "",
-              domain: item.domain || "CLINICAL", // Use the domain directly from the new endpoint
+              domain: item.domain || "CLINICAL",
+              microbiologyIsolate: !!item.microbiologyIsolate,
               active: item.isActive !== undefined ? item.isActive : true,
               testCount: item.testCount || 0, // Use actual test count from backend
               abbreviation: item.abbreviation || "",
@@ -331,6 +332,7 @@ function SampleTypeManagement({ intl }) {
       description: st.description,
       active: st.active,
       domain: st.domain,
+      microbiologyIsolate: !!st.microbiologyIsolate,
       testCount: st.testCount,
       abbreviation: st.abbreviation || "",
       sortOrder: st.sortOrder || 0,
@@ -469,6 +471,7 @@ function SampleTypeManagement({ intl }) {
         name: item.name || item.description || "",
         description: item.description || "",
         domain: item.domain || "CLINICAL",
+        microbiologyIsolate: !!item.microbiologyIsolate,
         active: item.isActive !== undefined ? item.isActive : true,
         testCount: item.testCount || 0,
         abbreviation: item.abbreviation || "",
@@ -509,6 +512,7 @@ function SampleTypeManagement({ intl }) {
           description: editingType.description?.trim() || "",
           domain: editingType.domain || "CLINICAL",
           active: !!editingType.active,
+          microbiologyIsolate: !!editingType.microbiologyIsolate,
         };
         await new Promise((resolve, reject) => {
           postToOpenElisServerJsonResponse(
@@ -585,6 +589,7 @@ function SampleTypeManagement({ intl }) {
           abbreviation: editingType.abbreviation?.trim() || "",
           isActive:
             editingType.active !== undefined ? editingType.active : true,
+          microbiologyIsolate: !!editingType.microbiologyIsolate,
           sortOrder: editingType.sortOrder || 0,
           whonetCode: editingType.whonetCode?.trim() || "",
         };
@@ -635,6 +640,7 @@ function SampleTypeManagement({ intl }) {
                   description: d.description,
                   active: d.isActive,
                   domain: d.domain,
+                  microbiologyIsolate: !!d.microbiologyIsolate,
                   testCount: d.testCount,
                   abbreviation: d.abbreviation || "",
                   sortOrder: d.sortOrder || 0,
@@ -1385,6 +1391,21 @@ function SampleTypeManagement({ intl }) {
                               }
                             />
 
+                            <Toggle
+                              id="st-microbiology-isolate"
+                              labelText={intl.formatMessage({
+                                id: "microbiology.isolateWorkspace.sampleTypeFlag",
+                              })}
+                              labelA={intl.formatMessage({ id: "label.no" })}
+                              labelB={intl.formatMessage({ id: "label.yes" })}
+                              toggled={!!editingType?.microbiologyIsolate}
+                              onToggle={(checked) =>
+                                setEditingType((prev) => ({
+                                  ...prev,
+                                  microbiologyIsolate: checked,
+                                }))
+                              }
+                            />
                             {view === "editor" && (
                               <TextInput
                                 ref={whonetCodeInputRef}

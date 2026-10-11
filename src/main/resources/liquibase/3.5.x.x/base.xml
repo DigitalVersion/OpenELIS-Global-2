@@ -673,4 +673,5 @@
   <!-- QC targets that no longer fit their test's result type are retired once (OGC-1462). -->
   <include relativeToChangelogFile="true" file="137-qc-targets-retire-stale.xml"/>
   <include relativeToChangelogFile="true" file="121-amr-v2-culture-workspace.xml"/>
+    <include file="122-amr-v2-isolates-referral.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

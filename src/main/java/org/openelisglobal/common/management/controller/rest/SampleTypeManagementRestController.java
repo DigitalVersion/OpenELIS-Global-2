@@ -65,6 +65,7 @@ public class SampleTypeManagementRestController extends BaseRestController {
         private String whonetCode;
         private String disposalInstructions;
         private Boolean isActive;
+        private Boolean microbiologyIsolate;
         private int sortOrder;
         private int testCount;
         private String lastUpdated;
@@ -90,7 +91,16 @@ public class SampleTypeManagementRestController extends BaseRestController {
             this.whonetCode = typeOfSample.getWhonetCode();
             this.disposalInstructions = typeOfSample.getDisposalInstructions();
             this.isActive = typeOfSample.getIsActive();
+            this.microbiologyIsolate = typeOfSample.isMicrobiologyIsolate();
             this.sortOrder = typeOfSample.getSortOrder();
+        }
+
+        public Boolean getMicrobiologyIsolate() {
+            return microbiologyIsolate;
+        }
+
+        public void setMicrobiologyIsolate(Boolean value) {
+            microbiologyIsolate = value;
         }
 
         // Getters and Setters
@@ -357,6 +367,8 @@ public class SampleTypeManagementRestController extends BaseRestController {
             if (sampleTypeDTO.getIsActive() != null) {
                 existingTypeOfSample.setIsActive(sampleTypeDTO.getIsActive());
             }
+            if (sampleTypeDTO.getMicrobiologyIsolate() != null)
+                existingTypeOfSample.setMicrobiologyIsolate(sampleTypeDTO.getMicrobiologyIsolate());
             existingTypeOfSample.setSysUserId(userId);
 
             // Rename updates the EXISTING localization in place (the mapping
